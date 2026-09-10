@@ -1,0 +1,106 @@
+import { useState } from "react";
+import Input from "./Input.jsx";
+import CalcularButton from "./CalcularButton.jsx";
+import ResultCard from "./ResultCard.jsx";
+
+function Velocidad({ onResult }) {
+    const [distancia, setDistancia] = useState("");
+    const [tiempo, setTiempo] = useState("");
+    const [resultado, setResultado] = useState(null);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState({});
+
+    const validateInputs = () => {
+        const newErrors = {};
+        
+        if (distancia === "" || isNaN(distancia)) {
+            newErrors.distancia = "La distancia es requerida";
+        } else if (Number(distancia) < 0) {
+            newErrors.distancia = "La distancia no puede ser negativa";
+        }
+        
+        if (tiempo === "" || isNaN(tiempo)) {
+            newErrors.tiempo = "El tiempo es requerido";
+        } else if (Number(tiempo) <= 0) {
+            newErrors.tiempo = "El tiempo debe ser mayor a cero";
+        }
+        
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const CalcularVelocidad = async () => {
+        if (!validateInputs()) return;
+
+        setLoading(true);
+        setError(null);
+        setResultado(null);
+
+        try {
+            const response = await fetch('http://localhost:5000/fisica/velocidad', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    distancia: Number(distancia), 
+                    tiempo: Number(tiempo) 
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                setError(data.mensaje || 'Error en el cálculo');
+                setResultado(null);
+            } else {
+                setResultado(data);
+                setError(null);
+                if (onResult) onResult(data);
+            }
+        } catch (err) {
+            setError('Error de conexión con el servidor');
+            setResultado(null);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Calculadora de Velocidad</h2>
+            
+            <Input
+                label="Distancia"
+                placeholder="Ingrese la distancia"
+                value={distancia}
+                onChange={(e) => setDistancia(e.target.value)}
+                unit="m"
+                error={errors.distancia}
+            />
+      
+            <Input
+                label="Tiempo"
+                placeholder="Ingrese el tiempo"
+                value={tiempo}
+                onChange={(e) => setTiempo(e.target.value)}
+                unit="s"
+                error={errors.tiempo}
+            />
+
+            <CalcularButton 
+                onClick={CalcularVelocidad} 
+                loading={loading}
+                disabled={!distancia || !tiempo}
+                className="bg-blue-600 hover:bg-blue-700"
+            >
+                Calcular Velocidad
+            </CalcularButton>
+            
+            <ResultCard resultado={resultado} error={error} />
+        </div>
+    );
+}
+
+export default Velocidad;
