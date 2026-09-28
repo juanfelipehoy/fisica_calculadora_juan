@@ -1,13 +1,13 @@
-# 🚀 Cómo Ejecutar el Proyecto
+#  Cómo Ejecutar el Proyecto
 
 Guía rápida para poner en funcionamiento el sistema de cálculos físicos.
 
-## 📋 Requisitos Previos
+##  Requisitos Previos
 
 - Node.js instalado (v16 o superior)
 - npm (viene con Node.js)
 
-## 🔧 Instalación
+##  Instalación
 
 ### 1. Instalar Dependencias del Backend
 
@@ -53,20 +53,20 @@ npm install --save-dev concurrently
 npm run dev:all
 ```
 
-## 🌐 Usar la Aplicación
+##  Usar la Aplicación
 
 1. Abre tu navegador
 2. Ve a `http://localhost:5173`
 3. Selecciona una calculadora del menú izquierdo
 4. Ingresa los datos y haz clic en "Calcular"
 
-## ✅ Verificación
+##  Verificación
 
 - Backend corriendo en `http://localhost:5000`
 - Frontend corriendo en `http://localhost:5173`
 - Ambas terminales deben mostrar mensajes de éxito
 
-## 🔧 Problemas Comunes
+##  Problemas Comunes
 
 **Puerto 5000 en uso:**
 ```bash

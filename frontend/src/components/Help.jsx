@@ -60,8 +60,7 @@ const Help = () => {
 
     return (
         <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                <span className="mr-2">📚</span>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">
                 Guía de Fórmulas Físicas
             </h2>
             
@@ -104,7 +103,7 @@ const Help = () => {
             </div>
 
             <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-md">
-                <h4 className="font-semibold text-green-800 mb-2">💡 Consejos de uso:</h4>
+                <h4 className="font-semibold text-green-800 mb-2">Consejos de uso:</h4>
                 <ul className="text-sm text-green-700 space-y-1">
                     <li>• Asegúrese de ingresar valores numéricos válidos</li>
                     <li>• Utilice las unidades indicadas para cada variable</li>

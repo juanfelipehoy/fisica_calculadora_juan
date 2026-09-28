@@ -1,8 +1,8 @@
-# 🧮 Calculadoras de Física - Frontend
+#  Calculadoras de Física - Frontend
 
 Interfaz gráfica en React para realizar cálculos físicos básicos mediante una API REST.
 
-## 🚀 Características
+## Características
 
 - **5 Calculadoras Físicas**: Velocidad, Aceleración, Fuerza, Energía Cinética y Densidad
 - **Comunicación HTTP**: Conexión con API REST para cálculos y validaciones
@@ -12,14 +12,14 @@ Interfaz gráfica en React para realizar cálculos físicos básicos mediante un
 - **Guía Interactiva**: Documentación integrada con fórmulas y ejemplos
 - **Diseño Responsivo**: Interfaz moderna con Tailwind CSS
 
-## 📋 Tecnologías Utilizadas
+## Tecnologías Utilizadas
 
 - **React 19**: Biblioteca principal para la interfaz de usuario
 - **Vite**: Herramienta de construcción y desarrollo
 - **Tailwind CSS 4**: Framework de CSS para estilos
 - **Fetch API**: Para comunicarse con el backend
 
-## 🛠️ Instalación y Uso
+## Instalación y Uso
 
 ### Prerrequisitos
 
@@ -48,7 +48,7 @@ npm run build
 npm run preview
 ```
 
-## 📡 Comunicación con la API
+## Comunicación con la API
 
 El frontend se comunica con el backend mediante solicitudes HTTP POST a los siguientes endpoints:
 
@@ -85,7 +85,7 @@ const response = await fetch('http://localhost:5000/fisica/velocidad', {
 }
 ```
 
-## 🎯 Componentes Principales
+## Componentes Principales
 
 ### Menu.jsx
 Componente principal que gestiona la navegación entre las diferentes calculadoras y el historial.
@@ -104,7 +104,7 @@ Componente principal que gestiona la navegación entre las diferentes calculador
 - `History.jsx` - Componente de historial
 - `Help.jsx` - Guía de fórmulas y ejemplos
 
-## 🎨 Características de UX
+## Características de UX
 
 ### Validación en Tiempo Real
 - Los inputs se validan antes de enviar la solicitud
@@ -126,14 +126,14 @@ Componente principal que gestiona la navegación entre las diferentes calculador
 - Muestra timestamp de cada cálculo
 - Opción para limpiar el historial
 
-## 📱 Responsive Design
+##  Responsive Design
 
 La interfaz se adapta a diferentes tamaños de pantalla:
 - **Desktop**: Layout de 3 columnas
 - **Tablet**: Layout de 2 columnas
 - **Mobile**: Layout de 1 columna
 
-## 🔧 Configuración
+##  Configuración
 
 ### Variables de Entorno
 
@@ -143,7 +143,7 @@ Para cambiar la URL del backend, modifica la constante en los componentes de cá
 const API_URL = 'http://localhost:5000'; // Cambiar si es necesario
 ```
 
-## 📚 Estructura del Proyecto
+##  Estructura del Proyecto
 
 ```
 frontend/
@@ -169,7 +169,7 @@ frontend/
 └── README.md                   # Este archivo
 ```
 
-## 🎓 Objetivos Educativos
+##  Objetivos Educativos
 
 Este proyecto demuestra:
 
@@ -181,10 +181,10 @@ Este proyecto demuestra:
 6. **UX/UI**: Diseño centrado en el usuario con retroalimentación
 7. **Arquitectura de Componentes**: Organización lógica de React
 
-## 🤝 Contribución
+##  Contribución
 
 Este es un proyecto educativo para aprender sobre desarrollo fullstack con React y Express.
 
-## 📄 Licencia
+##  Licencia
 
 Proyecto educativo - Uso académico

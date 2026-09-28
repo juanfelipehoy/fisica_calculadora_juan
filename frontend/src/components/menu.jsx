@@ -53,7 +53,7 @@ function Menu() {
                 {/* Header */}
                 <div className="text-center mb-8">
                     <h1 className="text-4xl font-bold text-gray-800 mb-2">
-                        🧮 Calculadoras de Física
+                        Calculadoras de Física
                     </h1>
                     <p className="text-gray-600">
                         Herramientas interactivas para cálculos físicos básicos
@@ -100,7 +100,7 @@ function Menu() {
                                         : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                                 }`}
                             >
-                                <div className="font-medium">📚 Guía de Fórmulas</div>
+                                <div className="font-medium">Guía de Fórmulas</div>
                                 <div className={`text-sm ${showHelp ? 'text-gray-200' : 'text-gray-500'}`}>
                                     Información y ejemplos
                                 </div>

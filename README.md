@@ -1,8 +1,8 @@
-# 🧮 Sistema de Cálculos Físicos - API REST + React Frontend
+# Sistema de Cálculos Físicos - API REST + React Frontend
 
 Proyecto completo de cálculos físicos que consiste en una API REST desarrollada con Express.js y una interfaz gráfica en React. El sistema permite realizar cálculos de velocidad, aceleración, fuerza, energía cinética y densidad con validaciones en ambos lados.
 
-## 📋 Tabla de Contenidos
+##  Tabla de Contenidos
 
 - [Descripción del Proyecto](#descripción-del-proyecto)
 - [Características](#características)
@@ -19,7 +19,7 @@ Proyecto completo de cálculos físicos que consiste en una API REST desarrollad
 - [Troubleshooting](#troubleshooting)
 - [Contribución](#contribución)
 
-## 🎯 Descripción del Proyecto
+## Descripción del Proyecto
 
 Este proyecto es una aplicación fullstack que automatiza cálculos físicos básicos mediante una arquitectura cliente-servidor. El backend se encarga de los cálculos y validaciones, mientras que el frontend proporciona una interfaz interactiva para que los usuarios ingresen datos y visualicen resultados.
 
@@ -32,26 +32,26 @@ Este proyecto es una aplicación fullstack que automatiza cálculos físicos bá
 - Manejar estados de carga y errores
 - Implementar una arquitectura de componentes reutilizables
 
-## ✨ Características
+## Características
 
 ### Backend (Express.js)
-- ✅ API REST con 5 endpoints para cálculos físicos
-- ✅ Middleware de validación para cada endpoint
-- ✅ CORS habilitado para comunicación con frontend
-- ✅ Manejo de errores HTTP apropiado
-- ✅ Estructura modular (routes, controllers, middlewares)
+-  API REST con 5 endpoints para cálculos físicos
+-  Middleware de validación para cada endpoint
+-  CORS habilitado para comunicación con frontend
+-  Manejo de errores HTTP apropiado
+-  Estructura modular (routes, controllers, middlewares)
 
 ### Frontend (React)
-- ✅ 5 calculadoras interactivas con formularios
-- ✅ Validación visual en tiempo real
-- ✅ Estados de carga durante solicitudes HTTP
-- ✅ Historial de cálculos (últimos 10)
-- ✅ Guía interactiva con fórmulas y ejemplos
-- ✅ Diseño responsivo con Tailwind CSS
-- ✅ Componentes reutilizables
-- ✅ Manejo robusto de errores
+-  5 calculadoras interactivas con formularios
+-  Validación visual en tiempo real
+-  Estados de carga durante solicitudes HTTP
+-  Historial de cálculos (últimos 10)
+-  Guía interactiva con fórmulas y ejemplos
+-  Diseño responsivo con Tailwind CSS
+-  Componentes reutilizables
+-  Manejo robusto de errores
 
-## 🛠️ Tecnologías Utilizadas
+## Tecnologías Utilizadas
 
 ### Backend
 - **Node.js**: Entorno de ejecución JavaScript
@@ -65,7 +65,7 @@ Este proyecto es una aplicación fullstack que automatiza cálculos físicos bá
 - **Tailwind CSS 4**: Framework de CSS utility-first
 - **Fetch API**: Para solicitudes HTTP
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 Proyecto_Fisica_Fabian/
@@ -103,7 +103,7 @@ Proyecto_Fisica_Fabian/
 └── README.md                   # Este archivo
 ```
 
-## 📦 Requisitos Previos
+## Requisitos Previos
 
 Antes de comenzar, asegúrate de tener instalado:
 
@@ -118,7 +118,7 @@ node --version
 npm --version
 ```
 
-## 🚀 Instalación Paso a Paso
+## Instalación Paso a Paso
 
 ### 1. Clonar o Navegar al Proyecto
 
@@ -208,7 +208,7 @@ npm install --save-dev concurrently
 npm run dev:all
 ```
 
-## 🔧 Funcionamiento del Sistema
+## Funcionamiento del Sistema
 
 ### Arquitectura General
 
@@ -230,7 +230,7 @@ El sistema sigue una arquitectura cliente-servidor tradicional:
 8. Frontend muestra el resultado al usuario
 9. Frontend agrega el cálculo al historial
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### Base URL
 ```
@@ -363,7 +363,7 @@ Content-Type: application/json
 - `400 Bad Request`: Error de validación en los datos
 - `500 Internal Server Error`: Error del servidor
 
-## 🎨 Uso de la Interfaz
+## Uso de la Interfaz
 
 ### Acceso a la Aplicación
 
@@ -396,13 +396,13 @@ Content-Type: application/json
 
 ### Guía de Fórmulas
 
-Haz clic en "📚 Guía de Fórmulas" para ver:
+Haz clic en "Guía de Fórmulas" para ver:
 - Fórmulas matemáticas de cada cálculo
 - Explicación de variables
 - Ejemplos prácticos
 - Consejos de uso
 
-## 🏗️ Arquitectura y Flujo de Datos
+## Arquitectura y Flujo de Datos
 
 ### Backend Architecture
 
@@ -433,7 +433,7 @@ User Input → Component Validation → HTTP Request → API Response → UI Upd
    - `onResult(data)` agrega al historial
    - UI muestra resultado
 
-## ✅ Validaciones
+##  Validaciones
 
 ### Validaciones del Frontend
 
@@ -468,7 +468,7 @@ if (tiempo === 0) {
 }
 ```
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### Problemas Comunes
 
@@ -542,7 +542,7 @@ curl -X POST http://localhost:5000/fisica/velocidad \
 3. Realiza un cálculo
 4. Verifica que la solicitud aparezca con status 200
 
-## 🎓 Conceptos Clave
+## Conceptos Clave
 
 ### REST API
 - Arquitectura de transferencia de estado representacional
@@ -566,7 +566,7 @@ curl -X POST http://localhost:5000/fisica/velocidad \
 - Reutilizabilidad
 - Composición de componentes
 
-## 📝 Scripts Disponibles
+## Scripts Disponibles
 
 ### Backend (raíz)
 ```bash
@@ -582,7 +582,7 @@ npm run preview     # Previa de producción
 npm run lint        # Ejecuta ESLint
 ```
 
-## 🔒 Seguridad
+## Seguridad
 
 Consideraciones de seguridad implementadas:
 
@@ -591,7 +591,7 @@ Consideraciones de seguridad implementadas:
 3. **Error handling**: Mensajes de error no exponen información sensible
 4. **Input sanitization**: Validación de tipos de datos
 
-## 🚀 Despliegue
+##  Despliegue
 
 ### Backend (Producción)
 
@@ -607,7 +607,7 @@ Consideraciones de seguridad implementadas:
 3. Configurar URL del backend para producción
 4. Implementar optimización de assets
 
-## 🤝 Contribución
+## Contribución
 
 Este es un proyecto educativo. Para contribuir:
 
@@ -617,17 +617,17 @@ Este es un proyecto educativo. Para contribuir:
 4. Push a la rama
 5. Abre un Pull Request
 
-## 📄 Licencia
+## Licencia
 
 Proyecto educativo - Uso académico
 
-## 👥 Autores
+## Autores
 
 - Desarrollado como proyecto de aprendizaje
 - Backend: Express.js + Node.js
 - Frontend: React + Vite + Tailwind CSS
 
-## 📞 Soporte
+## Soporte
 
 Para problemas o preguntas:
 - Revisa la sección de Troubleshooting
@@ -638,4 +638,4 @@ Para problemas o preguntas:
 
 **Versión**: 1.0.0  
 **Última actualización**: 2026  
-**Estado**: ✅ Funcional y listo para usar
+**Estado**:  Funcional y listo para usar
