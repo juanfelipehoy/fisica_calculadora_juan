@@ -1,6 +1,6 @@
 # Sistema de Cálculos Físicos - API REST + React Frontend
 
-Proyecto completo de cálculos físicos que consiste en una API REST desarrollada con Express.js y una interfaz gráfica en React. El sistema permite realizar cálculos de velocidad, aceleración, fuerza, energía cinética y densidad con validaciones en ambos lados.
+Proyecto completo de cálculos físicos que consiste en una API REST desarrollada con Express.js y una interfaz gráfica en React. El sistema permite realizar cálculos de velocidad, aceleración, fuerza, energía cinética, energía potencial y densidad, con validación centralizada en el servidor que devuelve mensajes de error descriptivos por campo.
 
 ##  Tabla de Contenidos
 
@@ -14,6 +14,7 @@ Proyecto completo de cálculos físicos que consiste en una API REST desarrollad
 - [Funcionamiento del Sistema](#funcionamiento-del-sistema)
 - [API Endpoints](#api-endpoints)
 - [Uso de la Interfaz](#uso-de-la-interfaz)
+- [Ver los Mensajes de Error](#ver-los-mensajes-de-error)
 - [Arquitectura y Flujo de Datos](#arquitectura-y-flujo-de-datos)
 - [Validaciones](#validaciones)
 - [Troubleshooting](#troubleshooting)
@@ -28,22 +29,28 @@ Este proyecto es una aplicación fullstack que automatiza cálculos físicos bá
 - Desarrollar una API REST con Express.js
 - Crear una interfaz gráfica con React
 - Implementar comunicación HTTP entre frontend y backend
-- Aplicar validaciones en cliente y servidor
+- Centralizar la validación en el servidor con un factory reutilizable
+- Exponer errores descriptivos por campo mediante un contrato JSON estable
 - Manejar estados de carga y errores
 - Implementar una arquitectura de componentes reutilizables
 
 ## Características
 
 ### Backend (Express.js)
--  API REST con 5 endpoints para cálculos físicos
--  Middleware de validación para cada endpoint
+-  API REST con 6 endpoints para cálculos físicos
+-  Middleware de validación centralizado con factory `crearValidador`
+-  Acepta valores numéricos enviados como **texto o número** (normaliza a número)
+-  Respuesta de error enriquecida: `mensaje` general + `errores` por campo
 -  CORS habilitado para comunicación con frontend
 -  Manejo de errores HTTP apropiado
 -  Estructura modular (routes, controllers, middlewares)
 
 ### Frontend (React)
 -  5 calculadoras interactivas con formularios
--  Validación visual en tiempo real
+-  Inputs de tipo `text`: permiten escribir **letras y números** (el backend valida)
+-  Mensajes de error del servidor mostrados en la tarjeta de resultado
+-  Campo con error resaltado en rojo debajo del input
+-  Formato numérico inteligente (notación científica para valores muy pequeños)
 -  Estados de carga durante solicitudes HTTP
 -  Historial de cálculos (últimos 10)
 -  Guía interactiva con fórmulas y ejemplos
@@ -72,23 +79,23 @@ Proyecto_Fisica_Fabian/
 ├── controllers/                 # Lógica de negocio del backend
 │   └── fisica.controller.js    # Controladores de cálculos físicos
 ├── middlewares/                 # Middleware de validación
-│   └── fisica.middlewares.js   # Validaciones para cada endpoint
+│   └── fisica.middlewares.js   # Validador común (crearValidador) + 6 validadores
 ├── routes/                     # Definición de rutas
 │   └── fisica.routes.js         # Rutas de la API
 ├── frontend/                    # Aplicación React
 │   ├── public/                  # Archivos estáticos
 │   ├── src/
 │   │   ├── components/          # Componentes React
-│   │   │   ├── Input.jsx        # Input reutilizable
+│   │   │   ├── Input.jsx        # Input reutilizable (type="text")
 │   │   │   ├── CalcularButton.jsx # Botón con loading
-│   │   │   ├── ResultCard.jsx  # Tarjeta de resultados
+│   │   │   ├── ResultCard.jsx  # Tarjeta de resultados + formateo numérico
 │   │   │   ├── History.jsx     # Historial de cálculos
-│   │   │   ├── Help.jsx        # Guía de fórmulas
+│   │   │   │   ├── Help.jsx        # Guía de fórmulas
 │   │   │   ├── menu.jsx        # Menú principal
 │   │   │   ├── Velocidad.jsx   # Calculadora velocidad
 │   │   │   ├── Aceleracion.jsx # Calculadora aceleración
 │   │   │   ├── fuerza.jsx      # Calculadora fuerza
-│   │   │   ├── Energia.jsx     # Calculadora energía
+│   │   │   ├── Energia.jsx     # Calculadora energía cinética
 │   │   │   └── Densidad.jsx    # Calculadora densidad
 │   │   ├── App.jsx             # Componente raíz
 │   │   ├── main.jsx            # Punto de entrada
@@ -100,7 +107,8 @@ Proyecto_Fisica_Fabian/
 ├── .gitignore                  # Archivos ignorados por Git
 ├── app.js                      # Punto de entrada backend
 ├── package.json                # Dependencias backend
-└── README.md                   # Este archivo
+├── README.md                   # Este archivo
+└── README2.md                  # Guía rápida de ejecución
 ```
 
 ## Requisitos Previos
@@ -221,14 +229,19 @@ El sistema sigue una arquitectura cliente-servidor tradicional:
 ### Flujo de Trabajo
 
 1. Usuario selecciona una calculadora en la interfaz
-2. Usuario ingresa los datos requeridos
-3. Frontend valida los datos localmente
-4. Frontend envía solicitud POST al backend
-5. Backend valida los datos nuevamente
-6. Backend realiza el cálculo correspondiente
-7. Backend retorna el resultado en formato JSON
-8. Frontend muestra el resultado al usuario
-9. Frontend agrega el cálculo al historial
+2. Usuario ingresa los datos requeridos (el campo acepta letras y números)
+3. Usuario hace clic en el botón "Calcular"
+4. Frontend envía los valores **en crudo como texto** al backend
+5. Backend valida los datos con el middleware
+6. Si hay un error, el backend responde `400` con el mensaje y los campos fallidos
+7. Frontend muestra el mensaje en la tarjeta roja de resultado y marca los inputs
+8. Si todo es válido, el backend realiza el cálculo y responde `200`
+9. Frontend muestra el resultado formateado y lo agrega al historial
+
+> **Nota importante**: la validación vive en el backend. El frontend envía los
+> datos tal cual para que los mensajes del middleware lleguen a la pantalla.
+> Por eso el botón "Calcular" nunca se deshabilita: pulsar con campos vacíos
+> es justamente lo que dispara el mensaje "son requeridos".
 
 ## API Endpoints
 
@@ -245,10 +258,13 @@ POST /fisica/velocidad
 Content-Type: application/json
 
 {
-  "distancia": 100,
-  "tiempo": 10
+  "distancia": "100",
+  "tiempo": "10"
 }
 ```
+
+> Los valores pueden enviarse como **número** (`100`) o como **texto** (`"100"`).
+> El middleware normaliza el texto a número antes de calcular.
 
 **Respuesta Exitosa:**
 ```json
@@ -261,9 +277,19 @@ Content-Type: application/json
 }
 ```
 
+**Respuesta con error:**
+```json
+{
+  "mensaje": "La distancia y el tiempo deben ser numeros.",
+  "errores": {
+    "distancia": "La distancia: debe ser un numero"
+  }
+}
+```
+
 **Validaciones:**
 - distancia y tiempo son requeridos
-- Deben ser números
+- Deben ser números (se acepta texto numérico, se rechazan letras)
 - No pueden ser negativos
 - tiempo no puede ser cero
 
@@ -341,8 +367,8 @@ POST /fisica/densidad
 Content-Type: application/json
 
 {
-  "masa": 2000,
-  "volumen": 1
+  "masa": "2000",
+  "volumen": "1"
 }
 ```
 
@@ -356,6 +382,53 @@ Content-Type: application/json
   "unidad": "kg/m³"
 }
 ```
+
+#### 6. Calcular Energía Potencial
+```http
+POST /fisica/energia-potencial
+Content-Type: application/json
+
+{
+  "masa": "2",
+  "gravedad": "9.8",
+  "altura": "10"
+}
+```
+
+**Respuesta Exitosa:**
+```json
+{
+  "operacion": "energia_potencial",
+  "masa": 2,
+  "gravedad": 9.8,
+  "altura": 10,
+  "resultado": 196,
+  "unidad": "J"
+}
+```
+
+> Este endpoint existe en la API y está validado, aunque todavía no tiene
+> interfaz gráfica propia en el menú del frontend.
+
+### Formato de Respuesta con Error
+
+Todas las respuestas de validación usan la misma estructura:
+
+```json
+{
+  "mensaje": "Mensaje general con la regla que se incumplió",
+  "errores": {
+    "campo": "Mensaje específico de ese campo"
+  }
+}
+```
+
+- `mensaje`: se muestra en la tarjeta roja de resultado
+- `errores`: se usa para resaltar cada input con su mensaje debajo
+
+Cuando varios campos fallan a la vez, `mensaje` muestra la regla de mayor
+prioridad (requeridos → numéricos → negativos → cero) y `errores` incluye
+todos los campos con problema.
 
 ### Códigos de Respuesta HTTP
 
@@ -394,6 +467,25 @@ Content-Type: application/json
 4. El resultado aparecerá en una tarjeta verde
 5. El cálculo se agregará automáticamente al historial
 
+### Ver los Mensajes de Error
+
+1. Escribe **letras** en un campo numérico (por ejemplo `abc` en Distancia)
+2. Haz clic en "Calcular"
+3. Aparecerá una tarjeta roja con el mensaje del servidor, y el input con el
+   error se marcará en rojo con su mensaje debajo
+
+Otros casos que puedes probar:
+
+| Entrada | Mensaje que verás |
+|---|---|
+| Campo vacío | "La distancia y el tiempo son requeridos." |
+| `abc` | "La distancia y el tiempo deben ser numeros." |
+| `-5` | "La distancia y el tiempo no pueden ser negativos." |
+| `0` en Tiempo | "El tiempo no puede ser cero." |
+
+> El botón "Calcular" nunca se deshabilita. Puedes pulsar con los campos
+> vacíos para ver el mensaje de "requeridos".
+
 ### Guía de Fórmulas
 
 Haz clic en "Guía de Fórmulas" para ver:
@@ -414,18 +506,18 @@ Request → Middleware Validation → Controller → Response
 ### Frontend Architecture
 
 ```
-User Input → Component Validation → HTTP Request → API Response → UI Update
-              (validateInputs)      (fetch)        (setState)
+User Input → HTTP Request → API Response → UI Update
+              (fetch)         (setState)
+              (valores crudos)
 ```
 
 ### Data Flow Example
 
 1. **Usuario**: Ingresa distancia=100, tiempo=10
 2. **Frontend**: 
-   - `validateInputs()` verifica datos
-   - `fetch('http://localhost:5000/fisica/velocidad', ...)`
+   - `fetch('http://localhost:5000/fisica/velocidad', ...)` con `{ distancia: "100", tiempo: "10" }`
 3. **Backend**:
-   - `validarVelocidad()` middleware valida
+   - `validarVelocidad()` middleware valida y normaliza a número
    - `calcularVelocidad()` controller calcula
    - Returns JSON response
 4. **Frontend**:
@@ -433,40 +525,117 @@ User Input → Component Validation → HTTP Request → API Response → UI Upd
    - `onResult(data)` agrega al historial
    - UI muestra resultado
 
+### Ejemplo de flujo con error
+
+1. **Usuario**: Ingresa distancia=`abc`, tiempo=10
+2. **Frontend**: envía los valores sin transformar, sin bloquear el botón
+3. **Backend**: `Number("abc")` no es finito → responde `400`:
+   ```json
+   {
+     "mensaje": "La distancia y el tiempo deben ser numeros.",
+     "errores": { "distancia": "La distancia: debe ser un numero" }
+   }
+   ```
+4. **Frontend**:
+   - `setError(data.mensaje)` → mensaje en la tarjeta roja
+   - `setErrors(data.errores)` → input marcado en rojo con su mensaje
+
 ##  Validaciones
 
-### Validaciones del Frontend
+### Dónde vive la validación
 
-- **Campos requeridos**: Verifica que no estén vacíos
-- **Tipo de dato**: Verifica que sean números válidos
-- **Rangos**: Verifica que no sean negativos cuando aplica
-- **Zero check**: Verifica que denominadores no sean cero
-- **Feedback inmediato**: Muestra errores por campo
+Toda la validación se hace en el **backend**, dentro de los middlewares. El
+frontend envía los valores tal cual los escribió el usuario y se limita a
+mostrar lo que el servidor responda. Esto evita que el cliente rechace datos
+antes de que el servidor pueda explicar por qué.
 
-### Validaciones del Backend
+### Formato de los campos
 
-- **Validación redundante**: Repite validaciones del frontend
-- **Security**: Nunca confía solo en validación del cliente
-- **Mensajes descriptivos**: Retorna errores específicos
-- **Status codes**: Usa códigos HTTP apropiados
+Los inputs son de tipo `text`, no `number`. Esto es intencional: permite
+escribir letras para comprobar que el sistema las rechaza con un mensaje
+claro, en lugar de simplemente impedir teclear.
 
-### Ejemplo de Validación
+El backend acepta ambas formas y normaliza:
+
+| Entrada del usuario | JSON enviado | ¿Válido? |
+|---|---|---|
+| `100` (número) | `100` | Sí |
+| `100` (texto) | `"100"` | Sí, se normaliza a número |
+| `" 100 "` (con espacios) | `" 100 "` | Sí, se normaliza a número |
+| `abc` (letras) | `"abc"` | No → "debe ser un numero" |
+| (vacío) | `""` | No → "es un dato requerido" |
+
+### Reglas validadas
+
+| Regla | Cuándo se aplica |
+|---|---|
+| Es un dato requerido | Campo vacío, `null` o `undefined` |
+| Debe ser un número | El texto no se puede convertir a número finito |
+| No admite valores negativos | Campos de magnitud (masa, distancia, altura, volumen) |
+| Debe ser mayor que cero | Divisores: tiempo, volumen, gravedad |
+
+Las velocidades (inicial y final) y la aceleración **sí admiten valores
+negativos**, porque son quantities con signo y representan deceleración.
+
+### Mensajes generados
+
+Cada condición que se cumple muestra su propio mensaje:
+
+| Condición | Mensaje general | Mensaje por campo |
+|---|---|---|
+| Vacío | `... son requeridos.` | `X: es un dato requerido` |
+| No numérico | `... deben ser numeros.` | `X: debe ser un numero` |
+| Negativo | `... no pueden ser negativos.` | `X: no admite valores negativos` |
+| Cero | `X no puede ser cero.` | `X: debe ser mayor que cero` |
+
+### Ejemplo de implementación
 
 ```javascript
-// Frontend validation
-if (tiempo === "" || isNaN(tiempo)) {
-    newErrors.tiempo = "El tiempo es requerido";
-} else if (Number(tiempo) <= 0) {
-    newErrors.tiempo = "El tiempo debe ser mayor a cero";
-}
+// Backend: middlewares/fisica.middlewares.js
+const esVacio = (valor) =>
+    valor === undefined ||
+    valor === null ||
+    (typeof valor === "string" && valor.trim() === "");
 
-// Backend validation
-if (tiempo === 0) {
+const esNumero = (valor) => !esVacio(valor) && Number.isFinite(Number(valor));
+
+// Valida, normaliza a número y responde con mensaje + errores por campo
+if (!esNumero(distancia)) {
     return res.status(400).json({
-        mensaje: "el tiempo no puede ser cero"
+        mensaje: "La distancia y el tiempo deben ser numeros.",
+        errores: { distancia: "La distancia: debe ser un numero" }
     });
 }
+body.distancia = Number(distancia); // normalización
 ```
+
+```javascript
+// Frontend: componentes/Velocidad.jsx
+// Se envían los valores crudos, sin Number() ni validación previa
+body: JSON.stringify({ distancia, tiempo })
+
+// Y se muestra lo que responde el servidor
+if (!response.ok) {
+    setError(data.mensaje || 'Error en el cálculo');
+    setErrors(data.errores || {});
+}
+```
+
+### Formato de los resultados
+
+`ResultCard` aplica un formato numérico inteligente en lugar de un
+`toFixed(4)` fijo:
+
+| Valor real | Se muestra como |
+|---|---|
+| `9` | `9` |
+| `0.33333333333333337` | `0,3333` |
+| `196` | `196` |
+| `2000` | `2.000` |
+| `5e-10` | `5.0000 × 10^-10` |
+
+Esto evita el error que producía el `toFixed(4)` fijo, que mostraba
+`0.0000 J` para resultados reales de `5e-10 J`.
 
 ## Troubleshooting
 
@@ -526,14 +695,42 @@ npm install
 - Revisa la consola del navegador para más detalles
 - Asegúrate de que la URL del backend sea correcta
 
+#### 6. El botón "Calcular" aparece gris y no hace nada
+**Causa**: el botón se deshabilita cuando faltan campos, así que nunca llega
+al backend y no hay mensaje que mostrar.
+
+**Nota**: en la versión actual esto ya no ocurre. El botón solo se deshabilita
+mientras la petición está en curso. Si vuelve a pasar, revisa que los
+componentes no tengan un `disabled={!...}` en `CalcularButton`.
+
+#### 7. No puedo escribir letras en los campos
+**Causa**: los inputs están en `type="number"`, que solo acepta dígitos.
+
+**Nota**: en la versión actual `Input.jsx` usa `type="text"` a propósito, para
+poder escribir letras y comprobar que el backend las rechaza con un mensaje.
+Los valores se envían como texto y el middleware los normaliza.
+
 ### Verificación del Sistema
 
 #### Verificar Backend
 ```bash
-# Test con curl
+# Cálculo válido (texto o número, ambos funcionan)
 curl -X POST http://localhost:5000/fisica/velocidad \
   -H "Content-Type: application/json" \
-  -d '{"distancia":100,"tiempo":10}'
+  -d '{"distancia":"100","tiempo":"10"}'
+
+# Con error: debe devolver 400 con mensaje y errores por campo
+curl -X POST http://localhost:5000/fisica/velocidad \
+  -H "Content-Type: application/json" \
+  -d '{"distancia":"abc","tiempo":"10"}'
+```
+
+Respuesta esperada del segundo caso:
+```json
+{
+  "mensaje": "La distancia y el tiempo deben ser numeros.",
+  "errores": { "distancia": "La distancia: debe ser un numero" }
+}
 ```
 
 #### Verificar Frontend
@@ -541,6 +738,23 @@ curl -X POST http://localhost:5000/fisica/velocidad \
 2. Ve a la pestaña "Network"
 3. Realiza un cálculo
 4. Verifica que la solicitud aparezca con status 200
+5. Escribe letras en un campo y verifica que la solicitud aparece con status 400
+   y que el mensaje se muestra en pantalla
+
+#### Verificar que los mensajes funcionan
+```bash
+# Vacío -> "son requeridos"
+curl -X POST http://localhost:5000/fisica/densidad \
+  -H "Content-Type: application/json" -d '{"masa":"20","volumen":""}'
+
+# Negativo -> "no pueden ser negativos"
+curl -X POST http://localhost:5000/fisica/fuerza \
+  -H "Content-Type: application/json" -d '{"masa":"-10","aceleracion":"5"}'
+
+# Cero -> "no puede ser cero"
+curl -X POST http://localhost:5000/fisica/velocidad \
+  -H "Content-Type: application/json" -d '{"distancia":"100","tiempo":"0"}'
+```
 
 ## Conceptos Clave
 
@@ -636,6 +850,16 @@ Para problemas o preguntas:
 
 ---
 
-**Versión**: 1.0.0  
+**Versión**: 1.1.0  
 **Última actualización**: 2026  
 **Estado**:  Funcional y listo para usar
+
+### Novedades de la v1.1.0
+- Validación migrada a un factory único `crearValidador` en el backend
+- Los middlewares aceptan texto o número y normalizan a número
+- Las respuestas de error incluyen `errores` con el mensaje por campo
+- Los inputs pasaron de `type="number"` a `type="text"` (aceptan letras)
+- El frontend ya no bloquea la petición: los mensajes del servidor se ven
+- El botón "Calcular" solo se deshabilita durante la petición
+- `ResultCard` formatea números sin truncar valores muy pequeños
+- Documentado el endpoint `/fisica/energia-potencial`

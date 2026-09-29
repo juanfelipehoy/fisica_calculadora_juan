@@ -11,31 +11,11 @@ function Velocidad({ onResult }) {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
 
-    const validateInputs = () => {
-        const newErrors = {};
-        
-        if (distancia === "" || isNaN(distancia)) {
-            newErrors.distancia = "La distancia es requerida";
-        } else if (Number(distancia) < 0) {
-            newErrors.distancia = "La distancia no puede ser negativa";
-        }
-        
-        if (tiempo === "" || isNaN(tiempo)) {
-            newErrors.tiempo = "El tiempo es requerido";
-        } else if (Number(tiempo) <= 0) {
-            newErrors.tiempo = "El tiempo debe ser mayor a cero";
-        }
-        
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
     const CalcularVelocidad = async () => {
-        if (!validateInputs()) return;
-
         setLoading(true);
         setError(null);
         setResultado(null);
+        setErrors({});
 
         try {
             const response = await fetch('http://localhost:5000/fisica/velocidad', {
@@ -43,23 +23,21 @@ function Velocidad({ onResult }) {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ 
-                    distancia: Number(distancia), 
-                    tiempo: Number(tiempo) 
-                })
+                body: JSON.stringify({ distancia, tiempo })
             });
             
             const data = await response.json();
             
             if (!response.ok) {
                 setError(data.mensaje || 'Error en el cálculo');
+                setErrors(data.errores || {});
                 setResultado(null);
             } else {
                 setResultado(data);
                 setError(null);
                 if (onResult) onResult(data);
             }
-        } catch (err) {
+        } catch {
             setError('Error de conexión con el servidor');
             setResultado(null);
         } finally {
@@ -92,7 +70,6 @@ function Velocidad({ onResult }) {
             <CalcularButton 
                 onClick={CalcularVelocidad} 
                 loading={loading}
-                disabled={!distancia || !tiempo}
                 className="bg-blue-600 hover:bg-blue-700"
             >
                 Calcular Velocidad

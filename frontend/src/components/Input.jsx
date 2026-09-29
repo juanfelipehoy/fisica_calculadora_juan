@@ -1,4 +1,4 @@
-const Input = ({ label, type = "number", placeholder, value, onChange, unit, error }) => {
+const Input = ({ label, type = "text", placeholder, value, onChange, unit, error }) => {
   return (
     <div className="space-y-1">
       <label className="block text-sm font-medium text-gray-700">

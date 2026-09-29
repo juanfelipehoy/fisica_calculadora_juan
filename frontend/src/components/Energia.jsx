@@ -11,29 +11,11 @@ function Energia({ onResult }) {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
 
-    const validateInputs = () => {
-        const newErrors = {};
-        
-        if (masa === "" || isNaN(masa)) {
-            newErrors.masa = "La masa es requerida";
-        } else if (Number(masa) < 0) {
-            newErrors.masa = "La masa no puede ser negativa";
-        }
-        
-        if (velocidad === "" || isNaN(velocidad)) {
-            newErrors.velocidad = "La velocidad es requerida";
-        }
-        
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
     const CalcularEnergia = async () => {
-        if (!validateInputs()) return;
-
         setLoading(true);
         setError(null);
         setResultado(null);
+        setErrors({});
 
         try {
             const response = await fetch('http://localhost:5000/fisica/energia-cinetica', {
@@ -41,23 +23,21 @@ function Energia({ onResult }) {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ 
-                    masa: Number(masa), 
-                    velocidad: Number(velocidad) 
-                })
+                body: JSON.stringify({ masa, velocidad })
             });
             
             const data = await response.json();
             
             if (!response.ok) {
                 setError(data.mensaje || 'Error en el cálculo');
+                setErrors(data.errores || {});
                 setResultado(null);
             } else {
                 setResultado(data);
                 setError(null);
                 if (onResult) onResult(data);
             }
-        } catch (err) {
+        } catch {
             setError('Error de conexión con el servidor');
             setResultado(null);
         } finally {
@@ -90,7 +70,6 @@ function Energia({ onResult }) {
             <CalcularButton 
                 onClick={CalcularEnergia} 
                 loading={loading}
-                disabled={!masa || !velocidad}
                 className="bg-yellow-600 hover:bg-yellow-700"
             >
                 Calcular Energía Cinética

@@ -6,7 +6,9 @@ Interfaz gráfica en React para realizar cálculos físicos básicos mediante un
 
 - **5 Calculadoras Físicas**: Velocidad, Aceleración, Fuerza, Energía Cinética y Densidad
 - **Comunicación HTTP**: Conexión con API REST para cálculos y validaciones
-- **Validación Visual**: Validación de inputs en tiempo real con mensajes de error
+- **Mensajes de Error del Servidor**: La validación vive en el backend y sus mensajes se muestran en pantalla
+- **Campos de Texto**: Los inputs aceptan letras y números a propósito
+- **Formato Numérico**: Notación científica para resultados muy pequeños
 - **Estados de Carga**: Indicadores visuales durante las solicitudes al servidor
 - **Historial de Cálculos**: Registro de los últimos 10 cálculos realizados
 - **Guía Interactiva**: Documentación integrada con fórmulas y ejemplos
@@ -60,21 +62,32 @@ El frontend se comunica con el backend mediante solicitudes HTTP POST a los sigu
 
 ### Ejemplo de Solicitud
 
+Los valores se envían **como texto y sin transformar**. El backend los valida
+y los convierte a número, de modo que sus mensajes de error llegan intactos
+hasta la pantalla.
+
 ```javascript
 const response = await fetch('http://localhost:5000/fisica/velocidad', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ 
-        distancia: 100, 
-        tiempo: 10 
-    })
+    body: JSON.stringify({ distancia, tiempo }) // valores crudos del input
 });
+
+const data = await response.json();
+
+if (!response.ok) {
+    setError(data.mensaje);              // mensaje general
+    setErrors(data.errores || {});       // mensaje por campo
+} else {
+    setResultado(data);
+}
 ```
 
 ### Respuesta del Servidor
 
+Éxito:
 ```json
 {
     "operacion": "velocidad",
@@ -84,6 +97,19 @@ const response = await fetch('http://localhost:5000/fisica/velocidad', {
     "unidad": "m/s"
 }
 ```
+
+Error de validación (`400`):
+```json
+{
+    "mensaje": "La distancia y el tiempo deben ser numeros.",
+    "errores": {
+        "distancia": "La distancia: debe ser un numero"
+    }
+}
+```
+
+`mensaje` se muestra en la tarjeta roja de resultado y `errores` se usa para
+marcar cada input con su mensaje debajo.
 
 ## Componentes Principales
 
@@ -98,18 +124,33 @@ Componente principal que gestiona la navegación entre las diferentes calculador
 - `Densidad.jsx` - Calculadora de densidad
 
 ### Componentes Reutilizables
-- `Input.jsx` - Componente de input con validación
+- `Input.jsx` - Componente de input de tipo `text` con mensaje de error
 - `CalcularButton.jsx` - Botón con estado de carga
-- `ResultCard.jsx` - Tarjeta para mostrar resultados
+- `ResultCard.jsx` - Tarjeta de resultados y formato numérico
 - `History.jsx` - Componente de historial
 - `Help.jsx` - Guía de fórmulas y ejemplos
 
 ## Características de UX
 
-### Validación en Tiempo Real
-- Los inputs se validan antes de enviar la solicitud
-- Mensajes de error específicos para cada campo
-- Botón deshabilitado cuando hay errores
+### Mensajes de Error
+- La validación se hace en el backend, no en el cliente
+- El frontend envía los valores tal cual para que el mensaje llegue a pantalla
+- Cada campo con error se marca en rojo con su mensaje debajo
+- El mensaje general aparece en una tarjeta roja de resultado
+- El botón "Calcular" solo se deshabilita mientras hay una petición en curso
+
+### Formato de Resultados
+`ResultCard` formatea los valores para que siempre sean legibles:
+
+| Valor real | Se muestra |
+|---|---|
+| `9` | `9` |
+| `0.33333333333333337` | `0,3333` |
+| `2000` | `2.000` |
+| `5e-10` | `5.0000 × 10^-10` |
+
+Se evita el `toFixed(4)` fijo, que mostraba `0.0000` para resultados muy
+pequeños.
 
 ### Estados de Carga
 - Indicador visual durante las solicitudes HTTP
@@ -176,10 +217,11 @@ Este proyecto demuestra:
 1. **Comunicación Frontend-Backend**: Uso de fetch API para solicitudes HTTP
 2. **Gestión de Estado**: useState para manejar datos de la aplicación
 3. **Componentes Reutilizables**: Creación de componentes modulares
-4. **Validación de Formularios**: Validación en cliente y servidor
+4. **Validación de Formularios**: La validación vive en el servidor y el frontend muestra sus mensajes
 5. **Manejo de Errores**: Gestión robusta de errores HTTP
 6. **UX/UI**: Diseño centrado en el usuario con retroalimentación
 7. **Arquitectura de Componentes**: Organización lógica de React
+8. **Formato Numérico**: Representación correcta de números muy pequeños y grandes
 
 ##  Contribución
 

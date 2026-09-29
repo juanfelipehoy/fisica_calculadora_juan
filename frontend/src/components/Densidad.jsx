@@ -11,31 +11,11 @@ function Densidad({ onResult }) {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
 
-    const validateInputs = () => {
-        const newErrors = {};
-        
-        if (masa === "" || isNaN(masa)) {
-            newErrors.masa = "La masa es requerida";
-        } else if (Number(masa) < 0) {
-            newErrors.masa = "La masa no puede ser negativa";
-        }
-        
-        if (volumen === "" || isNaN(volumen)) {
-            newErrors.volumen = "El volumen es requerido";
-        } else if (Number(volumen) <= 0) {
-            newErrors.volumen = "El volumen debe ser mayor a cero";
-        }
-        
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
     const CalcularDensidad = async () => {
-        if (!validateInputs()) return;
-
         setLoading(true);
         setError(null);
         setResultado(null);
+        setErrors({});
 
         try {
             const response = await fetch('http://localhost:5000/fisica/densidad', {
@@ -43,23 +23,21 @@ function Densidad({ onResult }) {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ 
-                    masa: Number(masa), 
-                    volumen: Number(volumen) 
-                })
+                body: JSON.stringify({ masa, volumen })
             });
             
             const data = await response.json();
             
             if (!response.ok) {
                 setError(data.mensaje || 'Error en el cálculo');
+                setErrors(data.errores || {});
                 setResultado(null);
             } else {
                 setResultado(data);
                 setError(null);
                 if (onResult) onResult(data);
             }
-        } catch (err) {
+        } catch {
             setError('Error de conexión con el servidor');
             setResultado(null);
         } finally {
@@ -92,7 +70,6 @@ function Densidad({ onResult }) {
             <CalcularButton 
                 onClick={CalcularDensidad} 
                 loading={loading}
-                disabled={!masa || !volumen}
                 className="bg-purple-600 hover:bg-purple-700"
             >
                 Calcular Densidad

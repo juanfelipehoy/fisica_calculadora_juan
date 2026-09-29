@@ -1,3 +1,18 @@
+const formatear = (valor) => {
+  if (!Number.isFinite(valor)) return "No se pudo calcular";
+  if (valor === 0) return "0";
+
+  const magnitud = Math.abs(valor);
+
+  if (magnitud < 0.0001 || magnitud >= 1e12) {
+    return valor.toExponential(4).replace("e", " × 10^");
+  }
+
+  return Number(valor.toFixed(4)).toLocaleString("es-ES", {
+    maximumFractionDigits: 4
+  });
+};
+
 const ResultCard = ({ resultado, error }) => {
   if (error) {
     return (
@@ -18,7 +33,7 @@ const ResultCard = ({ resultado, error }) => {
         </div>
         <div className="mt-2">
           <p className="text-lg font-semibold text-green-800">
-            {resultado.resultado.toFixed(4)} {resultado.unidad}
+            {formatear(Number(resultado.resultado))} {resultado.unidad}
           </p>
           <p className="text-sm text-green-600 mt-1">
             Operación: {resultado.operacion}

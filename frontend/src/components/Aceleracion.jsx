@@ -12,33 +12,11 @@ function Aceleracion({ onResult }) {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
 
-    const validateInputs = () => {
-        const newErrors = {};
-        
-        if (velocidadInicial === "" || isNaN(velocidadInicial)) {
-            newErrors.velocidadInicial = "La velocidad inicial es requerida";
-        }
-        
-        if (velocidadFinal === "" || isNaN(velocidadFinal)) {
-            newErrors.velocidadFinal = "La velocidad final es requerida";
-        }
-        
-        if (tiempo === "" || isNaN(tiempo)) {
-            newErrors.tiempo = "El tiempo es requerido";
-        } else if (Number(tiempo) <= 0) {
-            newErrors.tiempo = "El tiempo debe ser mayor a cero";
-        }
-        
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
     const CalcularAceleracion = async () => {
-        if (!validateInputs()) return;
-
         setLoading(true);
         setError(null);
         setResultado(null);
+        setErrors({});
 
         try {
             const response = await fetch('http://localhost:5000/fisica/aceleracion', {
@@ -46,24 +24,21 @@ function Aceleracion({ onResult }) {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ 
-                    velocidadInicial: Number(velocidadInicial), 
-                    velocidadFinal: Number(velocidadFinal),
-                    tiempo: Number(tiempo) 
-                })
+                body: JSON.stringify({ velocidadInicial, velocidadFinal, tiempo })
             });
             
             const data = await response.json();
             
             if (!response.ok) {
                 setError(data.mensaje || 'Error en el cálculo');
+                setErrors(data.errores || {});
                 setResultado(null);
             } else {
                 setResultado(data);
                 setError(null);
                 if (onResult) onResult(data);
             }
-        } catch (err) {
+        } catch {
             setError('Error de conexión con el servidor');
             setResultado(null);
         } finally {
@@ -105,7 +80,6 @@ function Aceleracion({ onResult }) {
             <CalcularButton 
                 onClick={CalcularAceleracion} 
                 loading={loading}
-                disabled={!velocidadInicial || !velocidadFinal || !tiempo}
                 className="bg-green-600 hover:bg-green-700"
             >
                 Calcular Aceleración

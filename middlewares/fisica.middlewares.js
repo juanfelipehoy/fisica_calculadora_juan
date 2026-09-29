@@ -1,175 +1,137 @@
-export const validarVelocidad=(req,res,next)=>{
+const esVacio = (valor) =>
+    valor === undefined ||
+    valor === null ||
+    (typeof valor === "string" && valor.trim() === "");
 
-const {distancia,tiempo}=req.body
+const esNumero = (valor) => !esVacio(valor) && Number.isFinite(Number(valor));
 
-if(distancia===undefined || tiempo===undefined){
-    return res.status(400).json({
-    mensaje:"la distancia y el tiempo son requeridos"
-});
-};
+const crearValidador = ({ campos, mensajes }) => (req, res, next) => {
+    const body = req.body || {};
+    const errores = {};
+    const fallidos = [];
 
-if(typeof distancia!=="number" || typeof tiempo!=="number"){
-    return res.status(400).json({
-    mensaje:"la distancia y el tiempo deben ser numeros"
-    });
-    };
+    for (const [nombre, regla] of Object.entries(campos)) {
+        const valor = body[nombre];
+        const etiqueta = regla.etiqueta;
 
+        if (esVacio(valor)) {
+            errores[nombre] = `${etiqueta}: es un dato requerido`;
+            fallidos.push("requeridos");
+            continue;
+        }
 
- if (distancia < 0 || tiempo  <0){
-return res.status(400).json({
-    mensaje:"la distancia y el tiempo no pueden ser negativos"
-    });
-    };
+        if (!esNumero(valor)) {
+            errores[nombre] = `${etiqueta}: debe ser un numero`;
+            fallidos.push("numericos");
+            continue;
+        }
 
+        const numero = Number(valor);
+        body[nombre] = numero;
 
-    if (tiempo===0){
+        if (regla.sinNegativos && numero < 0) {
+            errores[nombre] = `${etiqueta}: no admite valores negativos`;
+            fallidos.push("negativos");
+            continue;
+        }
+
+        if (regla.sinCero && numero === 0) {
+            errores[nombre] = `${etiqueta}: debe ser mayor que cero`;
+            fallidos.push("ceros");
+            continue;
+        }
+    }
+
+    if (fallidos.length > 0) {
+        const prioridad = ["requeridos", "numericos", "negativos", "ceros"];
+        const primera = prioridad.find((tipo) => fallidos.includes(tipo));
+
         return res.status(400).json({
-            mensaje:"el tiempo no puede ser cero"
+            mensaje: mensajes[primera],
+            errores
         });
-    };
+    }
 
- next();
-
-}
-
-export const validarAceleracion=(req,res,next)=>{
-
-const {velocidadFinal, velocidadInicial, tiempo}=req.body
-
-if(velocidadFinal===undefined || velocidadInicial===undefined || tiempo===undefined){
-    return res.status(400).json({
-    mensaje:"velocidadFinal, velocidadInicial y tiempo son requeridos"
-});
+    req.body = body;
+    next();
 };
 
-if(typeof velocidadFinal!=="number" || typeof velocidadInicial!=="number" || typeof tiempo!=="number"){
-    return res.status(400).json({
-    mensaje:"velocidadFinal, velocidadInicial y tiempo deben ser numeros"
-    });
-    };
-
- if (tiempo < 0){
-return res.status(400).json({
-    mensaje:"el tiempo no puede ser negativo"
-    });
-    };
-
-    if (tiempo===0){
-        return res.status(400).json({
-            mensaje:"el tiempo no puede ser cero"
-        });
-    };
-
- next();
-
-}
-
-export const validarFuerza=(req,res,next)=>{
-
-const {masa, aceleracion}=req.body
-
-if(masa===undefined || aceleracion===undefined){
-    return res.status(400).json({
-    mensaje:"masa y aceleracion son requeridos"
+export const validarVelocidad = crearValidador({
+    campos: {
+        distancia: { etiqueta: "La distancia", sinNegativos: true },
+        tiempo: { etiqueta: "El tiempo", sinNegativos: true, sinCero: true }
+    },
+    mensajes: {
+        requeridos: "La distancia y el tiempo son requeridos.",
+        numericos: "La distancia y el tiempo deben ser numeros.",
+        negativos: "La distancia y el tiempo no pueden ser negativos.",
+        ceros: "El tiempo no puede ser cero."
+    }
 });
-};
 
-if(typeof masa!=="number" || typeof aceleracion!=="number"){
-    return res.status(400).json({
-    mensaje:"masa y aceleracion deben ser numeros"
-    });
-    };
-
- if (masa < 0){
-return res.status(400).json({
-    mensaje:"la masa no puede ser negativa"
-    });
-    };
-
- next();
-
-}
-
-export const validarEnergiaCinetica=(req,res,next)=>{
-
-const {masa, velocidad}=req.body
-
-if(masa===undefined || velocidad===undefined){
-    return res.status(400).json({
-    mensaje:"masa y velocidad son requeridos"
+export const validarAceleracion = crearValidador({
+    campos: {
+        velocidadFinal: { etiqueta: "La velocidad final" },
+        velocidadInicial: { etiqueta: "La velocidad inicial" },
+        tiempo: { etiqueta: "El tiempo", sinNegativos: true, sinCero: true }
+    },
+    mensajes: {
+        requeridos: "velocidadFinal, velocidadInicial y tiempo son requeridos.",
+        numericos: "velocidadFinal, velocidadInicial y tiempo deben ser numeros.",
+        negativos: "El tiempo no puede ser negativo.",
+        ceros: "El tiempo no puede ser cero."
+    }
 });
-};
 
-if(typeof masa!=="number" || typeof velocidad!=="number"){
-    return res.status(400).json({
-    mensaje:"masa y velocidad deben ser numeros"
-    });
-    };
-
- if (masa < 0){
-return res.status(400).json({
-    mensaje:"la masa no puede ser negativa"
-    });
-    };
-
- next();
-
-}
-
-export const validarEnergiaPotencial=(req,res,next)=>{
-
-const {masa, gravedad, altura}=req.body
-
-if(masa===undefined || gravedad===undefined || altura===undefined){
-    return res.status(400).json({
-    mensaje:"masa, gravedad y altura son requeridos"
+export const validarFuerza = crearValidador({
+    campos: {
+        masa: { etiqueta: "La masa", sinNegativos: true },
+        aceleracion: { etiqueta: "La aceleracion" }
+    },
+    mensajes: {
+        requeridos: "masa y aceleracion son requeridos.",
+        numericos: "masa y aceleracion deben ser numeros.",
+        negativos: "La masa no puede ser negativa.",
+        ceros: ""
+    }
 });
-};
 
-if(typeof masa!=="number" || typeof gravedad!=="number" || typeof altura!=="number"){
-    return res.status(400).json({
-    mensaje:"masa, gravedad y altura deben ser numeros"
-    });
-    };
-
- if (masa < 0 || altura < 0){
-return res.status(400).json({
-    mensaje:"la masa y la altura no pueden ser negativas"
-    });
-    };
-
- next();
-
-}
-
-export const validarDensidad=(req,res,next)=>{
-
-const {masa, volumen}=req.body
-
-if(masa===undefined || volumen===undefined){
-    return res.status(400).json({
-    mensaje:"masa y volumen son requeridos"
+export const validarEnergiaCinetica = crearValidador({
+    campos: {
+        masa: { etiqueta: "La masa", sinNegativos: true },
+        velocidad: { etiqueta: "La velocidad", sinNegativos: true }
+    },
+    mensajes: {
+        requeridos: "masa y velocidad son requeridos.",
+        numericos: "masa y velocidad deben ser numeros.",
+        negativos: "La masa y la velocidad no pueden ser negativas.",
+        ceros: ""
+    }
 });
-};
 
-if(typeof masa!=="number" || typeof volumen!=="number"){
-    return res.status(400).json({
-    mensaje:"masa y volumen deben ser numeros"
-    });
-    };
+export const validarEnergiaPotencial = crearValidador({
+    campos: {
+        masa: { etiqueta: "La masa", sinNegativos: true },
+        gravedad: { etiqueta: "La gravedad", sinNegativos: true, sinCero: true },
+        altura: { etiqueta: "La altura", sinNegativos: true }
+    },
+    mensajes: {
+        requeridos: "masa, gravedad y altura son requeridos.",
+        numericos: "masa, gravedad y altura deben ser numeros.",
+        negativos: "La masa, la gravedad y la altura no pueden ser negativas.",
+        ceros: "La gravedad debe ser mayor que cero."
+    }
+});
 
- if (masa < 0 || volumen < 0){
-return res.status(400).json({
-    mensaje:"la masa y el volumen no pueden ser negativos"
-    });
-    };
-
-    if (volumen===0){
-        return res.status(400).json({
-            mensaje:"el volumen no puede ser cero"
-        });
-    };
-
- next();
-
-}
+export const validarDensidad = crearValidador({
+    campos: {
+        masa: { etiqueta: "La masa", sinNegativos: true },
+        volumen: { etiqueta: "El volumen", sinNegativos: true, sinCero: true }
+    },
+    mensajes: {
+        requeridos: "masa y volumen son requeridos.",
+        numericos: "masa y volumen deben ser numeros.",
+        negativos: "La masa y el volumen no pueden ser negativos.",
+        ceros: "El volumen no puede ser cero."
+    }
+});
